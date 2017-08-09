@@ -1,0 +1,9 @@
+.btn {
+    width: 120px;
+    height: 40px;
+    display: block;
+    background: rgba(0, 0, 0, .5);
+    /* border: 1px solid white; */
+    color: white;
+    margin-top: 20px;
+}

@@ -1,11 +1,10 @@
-
 'use strict'
 
-const easeInOut = function (t, b, c, d) {
+const easeInOut = function(t, b, c, d) {
     if ((t /= d / 2) < 1) return c / 2 * t * t + b
     return -c / 2 * ((--t) * (t - 2) - 1) + b
 }
-const easeOut = function (t, b, c, d) {
+const easeOut = function(t, b, c, d) {
     return c * Math.sqrt(1 - (t = t / d - 1) * t) + b
 }
 
@@ -55,7 +54,7 @@ class Particles {
             for (let i = 0; i < particleRows; i++)
                 for (let j = 0; j < particleCols; j++) {
                     var rgba = this._getRgba(imgData, i * density, j * density)
-                    if (rgba[0] < 250) {
+                    if (rgba[0] < 245) {
                         this.particles.push({
                             x: Math.random() * this.canvas.clientWidth,
                             y: Math.random() * this.canvas.clientHeight,
@@ -87,8 +86,8 @@ class Particles {
         let _run = () => {
             start++
             this.particles.forEach((v, i) => {
-                v.x = easeOut(start, v.x, v.tX - v.x, during)
-                v.y = easeInOut(start, v.y, v.tY - v.y, during)
+                v.x = easeInOut(start, v.x, v.tX - v.x, during)
+                v.y = easeOut(start, v.y, v.tY - v.y, during)
             })
             this.render()
 
