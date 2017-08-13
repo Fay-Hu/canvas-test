@@ -5,9 +5,9 @@ import { NgModule } from '@angular/core';
 
 
 @NgModule({
-    imports: [],
-    exports: [DropShapeDirective, DropShapeGroupDirective],
-    declarations: [DropShapeDirective, DropShapeGroupDirective],
-    providers: [DropShapeService]
+	imports: [],
+	exports: [DropShapeDirective, DropShapeGroupDirective],
+	declarations: [DropShapeDirective, DropShapeGroupDirective],
+	providers: [DropShapeService]
 })
 export class DropShapeModule { }

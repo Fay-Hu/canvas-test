@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 
 
 const DEFAULT_FILL = 'rgba(255,255,255,1)';
-const TOP_GUTTER = 40;
+
 //Point->[x,y]
 type Point = [number, number];
 
@@ -27,6 +27,11 @@ export interface ControlPoints {
 	g1: Point;
 	h1?: Point;
 }
+export interface ConrolePointsFrame {
+	duration?: number;
+	easing?: any;
+	points: ControlPoints;
+}
 
 export class RoundShape {
 	canvas: HTMLCanvasElement;
@@ -36,8 +41,6 @@ export class RoundShape {
 
 	constructor(canvas: HTMLCanvasElement, points: ControlPoints, fill: string = DEFAULT_FILL) {
 		this.canvas = canvas;
-		//offset gutter,canvas origin is center but html is (0,0)
-		this.canvas.style.top = -TOP_GUTTER / 2 + 'px';
 		this.ctx = canvas.getContext('2d');
 		this.fill = fill;
 		this.controlPoints = points;
@@ -48,7 +51,6 @@ export class RoundShape {
 
 		ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
 		ctx.save();
-		ctx.translate(0, TOP_GUTTER);
 		ctx.fillStyle = this.fill;
 
 		let {
@@ -61,12 +63,8 @@ export class RoundShape {
 		_.each([b, c, d, e, f, g, h, a], (v, i) => {
 			// 97 = unicode('a')
 			ctx.quadraticCurveTo(eval(`${String.fromCharCode((97 + i))}1`)[0], eval(`${String.fromCharCode((97 + i))}1`)[1], v[0], v[1]);
-			ctx.rect(v[0],v[1],2,2);//
 		});
 
-		ctx.closePath();
-		ctx.strokeStyle = 'red';//
-		ctx.stroke();//
 		ctx.fill();
 		ctx.restore();
 	}
@@ -75,7 +73,7 @@ export class RoundShape {
 	 * 
 	 * @param frames 
 	 */
-	transformTo(frames: any[]) {
+	transformTo(frames: ConrolePointsFrame[]) {
 		let _animate = (time) => {
 			requestAnimationFrame(_animate);
 			TWEEN.update(time);
@@ -91,7 +89,7 @@ export class RoundShape {
 				new TWEEN.Tween(coords)
 					.to(this._getCoords(points), v.duration)
 					// easing
-					.easing(v.easing || TWEEN.Easing.Quadratic.Out)
+					.easing(v.easing || TWEEN.Easing.Quadratic.In)
 					.onUpdate(() => {
 						_.extend(this.controlPoints, this._getPoints(coords));
 						this.draw();

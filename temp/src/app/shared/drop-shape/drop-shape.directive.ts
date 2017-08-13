@@ -6,10 +6,10 @@ import {
 
 
 @Directive({
-  selector: '[appDropShape]'
+  selector: '[epgDropShape]'
 })
 export class DropShapeDirective {
-  @Input() appDropShapeActived: boolean;
+  @Input() epgDropShape: boolean;
 
   constructor(
     public el: ElementRef,
@@ -19,6 +19,6 @@ export class DropShapeDirective {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    changes['appDropShapeActived'].firstChange || this.dropShapeService.change.emit(this);
+    changes['epgDropShape'].firstChange || this.dropShapeService.change.emit(this);
   }
 }
