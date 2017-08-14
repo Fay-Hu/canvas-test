@@ -4,8 +4,10 @@ import {
 import * as _ from 'underscore';
 import { DropShapeDirective } from './drop-shape.directive';
 import { DropShapeService } from './drop-shape.service';
-import { RoundShape} from './round-shape/round-shape';
+import { RoundShape } from './round-shape/round-shape';
 import { getRectPoints, roundShapeFrams } from './round-shape/round-shape-frames';
+
+type direction = 'left' | 'right' | 'up' | 'down';
 
 @Directive({
   selector: '[epgDropShapeGroup]'
@@ -55,6 +57,11 @@ export class DropShapeGroupDirective {
     this.stage.height = this.container.clientHeight;
     this.stage.width = this.container.clientWidth;
 
+
+    if (this._getStyle(this.container, 'position') === 'static') {
+      this.container.style.position = 'relative';
+    }
+
     this.activeDropShape = this.dropShapes.filter((v) => {
       return v.epgDropShape;
     })[0];
@@ -64,9 +71,19 @@ export class DropShapeGroupDirective {
       activeEle = this.activeDropShape.el.nativeElement,
       w = activeEle.offsetWidth,
       h = activeEle.offsetHeight,
-      l = activeEle.offsetLeft - containerEle.offsetLeft,
-      t = activeEle.offsetTop - containerEle.offsetTop;
+      l = activeEle.offsetLeft,
+      t = activeEle.offsetTop;
 
+    if (this._getStyle(activeEle, 'position') !== 'static') {
+      this.stage.style.top = -t + 'px';
+      this.stage.style.left = -l + 'px';
+    } else {
+      this.stage.style.top = '0px';
+      this.stage.style.left = '0px';
+    }
+    console.log(t)
+
+    this._prependChild(activeEle, this.stage);
     // rectØ
     this.shape = new RoundShape(this.stage, getRectPoints(l, t, w, h), this._options.fillColor);
 
@@ -87,18 +104,65 @@ export class DropShapeGroupDirective {
 
       preW = preActiveEle.offsetWidth,
       preH = preActiveEle.offsetHeight,
-      preL = preActiveEle.offsetLeft - this.el.nativeElement.offsetLeft,
-      preT = preActiveEle.offsetTop - this.el.nativeElement.offsetTop,
+      preL = preActiveEle.offsetLeft,
+      preT = preActiveEle.offsetTop,
 
       w = activeEle.offsetWidth,
       h = activeEle.offsetHeight,
-      l = activeEle.offsetLeft - this.el.nativeElement.offsetLeft,
-      t = activeEle.offsetTop - this.el.nativeElement.offsetTop,
+      l = activeEle.offsetLeft,
+      t = activeEle.offsetTop,
 
       dir = <1 | -1>t > preT ? 1 : -1;
 
+    if (this._getStyle(activeEle, 'position') !== 'static') {
+      this.stage.style.top = -t + 'px';
+      this.stage.style.left = -l + 'px';
+    }
+
+    this._prependChild(activeEle, this.stage);
     this.shape.transformTo(roundShapeFrams(l, t, w, h, preL, preT, preW, preH, dir));
     this.preActiveDropShape = this.activeDropShape;
+  }
+
+  private _prependChild(parent, newChild: HTMLElement) {
+    if (parent.firstChild) {
+      if (parent.firstChild.nodeName === '#text') {
+        let tempWraper = document.createElement('span');
+        tempWraper.appendChild(parent.firstChild);
+        parent.appendChild(tempWraper);
+      }
+      parent.firstChild.style.position = 'relative';
+      parent.insertBefore(newChild, parent.firstChild);
+    } else {
+      parent.appendChild(newChild);
+    }
+    return parent;
+  }
+
+  private _getStyle(element, attr: string) {
+    if (typeof
+      window.getComputedStyle != 'undefined') {
+      return window.getComputedStyle(element, null)[attr];
+    } else if (element.currentStyle) {
+      return element.currentStyle[attr];
+    }
+  }
+
+  resize(force?: boolean) {
+    let
+      containerEle = this.el.nativeElement,
+      activeEle = this.activeDropShape.el.nativeElement,
+      w = activeEle.offsetWidth,
+      h = activeEle.offsetHeight,
+      l = activeEle.offsetLeft - containerEle.offsetLeft,
+      t = activeEle.offsetTop - containerEle.offsetTop;
+
+    if (force) {
+      this.shape.controlPoints = getRectPoints(l, t, w, h);
+      this.stage.height = this.container.clientHeight;
+      this.stage.width = this.container.clientWidth;
+      this.shape.draw();
+    }
   }
 
   destory() {
