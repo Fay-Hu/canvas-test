@@ -84,7 +84,7 @@ export class DropShapeGroupDirective {
     console.log(t)
 
     this._prependChild(activeEle, this.stage);
-    // rectØ
+    // rect
     this.shape = new RoundShape(this.stage, getRectPoints(l, t, w, h), this._options.fillColor);
 
     this.shape.draw();
