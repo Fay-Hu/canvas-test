@@ -4,7 +4,7 @@ import {
 import * as _ from 'underscore';
 import { DropShapeDirective } from './drop-shape.directive';
 import { DropShapeService } from './drop-shape.service';
-import { RoundShape, ControlPoints } from './round-shape/round-shape';
+import { RoundShape} from './round-shape/round-shape';
 import { getRectPoints, roundShapeFrams } from './round-shape/round-shape-frames';
 
 @Directive({
@@ -51,12 +51,10 @@ export class DropShapeGroupDirective {
     };
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.stage.height = this.container.clientHeight;
     this.stage.width = this.container.clientWidth;
-  }
 
-  ngAfterViewInit() {
     this.activeDropShape = this.dropShapes.filter((v) => {
       return v.epgDropShape;
     })[0];
@@ -64,8 +62,8 @@ export class DropShapeGroupDirective {
     let
       containerEle = this.el.nativeElement,
       activeEle = this.activeDropShape.el.nativeElement,
-      w = activeEle.clientWidth,
-      h = activeEle.clientHeight,
+      w = activeEle.offsetWidth,
+      h = activeEle.offsetHeight,
       l = activeEle.offsetLeft - containerEle.offsetLeft,
       t = activeEle.offsetTop - containerEle.offsetTop;
 
@@ -87,13 +85,13 @@ export class DropShapeGroupDirective {
       activeEle = this.activeDropShape.el.nativeElement,
       preActiveEle = this.preActiveDropShape.el.nativeElement,
 
-      preW = preActiveEle.clientWidth,
-      preH = preActiveEle.clientHeight,
+      preW = preActiveEle.offsetWidth,
+      preH = preActiveEle.offsetHeight,
       preL = preActiveEle.offsetLeft - this.el.nativeElement.offsetLeft,
       preT = preActiveEle.offsetTop - this.el.nativeElement.offsetTop,
 
-      w = activeEle.clientWidth,
-      h = activeEle.clientHeight,
+      w = activeEle.offsetWidth,
+      h = activeEle.offsetHeight,
       l = activeEle.offsetLeft - this.el.nativeElement.offsetLeft,
       t = activeEle.offsetTop - this.el.nativeElement.offsetTop,
 
