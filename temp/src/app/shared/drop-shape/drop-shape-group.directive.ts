@@ -1,13 +1,12 @@
 import {
-  ContentChildren, Directive, ElementRef, Input, QueryList
+  ContentChildren, Directive, ElementRef, Input, Output, QueryList, EventEmitter
 } from '@angular/core';
 import * as _ from 'underscore';
-import { DropShapeDirective } from './drop-shape.directive';
-import { DropShapeService } from './drop-shape.service';
-import { RoundShape } from './round-shape/round-shape';
-import { getRectPoints, roundShapeFrams } from './round-shape/round-shape-frames';
+import {DropShapeDirective} from './drop-shape.directive';
+import {DropShapeService} from './drop-shape.service';
+import {RoundShape} from './round-shape/round-shape';
+import {direction, getRectPoints, roundShapeFrams} from './round-shape/round-shape-frames';
 
-type direction = 'left' | 'right' | 'up' | 'down';
 
 @Directive({
   selector: '[epgDropShapeGroup]'
@@ -22,14 +21,17 @@ export class DropShapeGroupDirective {
 
   //options
   _options: any = {};
+
   get epgDropShapeGroup() {
     return this._options;
   }
+
   @Input()
   set epgDropShapeGroup(value: any) {
     this._options = _.extend(DropShapeGroupDirective.Defaults, value);
   }
 
+  @Output() onAnimationEnd: EventEmitter<any> = new EventEmitter();
   @ContentChildren(DropShapeDirective)
   dropShapes: QueryList<DropShapeDirective>;
 
@@ -81,9 +83,8 @@ export class DropShapeGroupDirective {
       this.stage.style.top = '0px';
       this.stage.style.left = '0px';
     }
-    console.log(t)
 
-    this._prependChild(activeEle, this.stage);
+    this._prependShape(activeEle, this.stage);
     // rect
     this.shape = new RoundShape(this.stage, getRectPoints(l, t, w, h), this._options.fillColor);
 
@@ -112,26 +113,34 @@ export class DropShapeGroupDirective {
       l = activeEle.offsetLeft,
       t = activeEle.offsetTop,
 
-      dir = <1 | -1>t > preT ? 1 : -1;
+      dir = l > preL ? 'right' : l < preL ? 'left' : t > preT ? 'down' : 'up';
 
     if (this._getStyle(activeEle, 'position') !== 'static') {
       this.stage.style.top = -t + 'px';
       this.stage.style.left = -l + 'px';
     }
 
-    this._prependChild(activeEle, this.stage);
-    this.shape.transformTo(roundShapeFrams(l, t, w, h, preL, preT, preW, preH, dir));
+    this._prependShape(activeEle, this.stage);
+    this.shape.transformTo(roundShapeFrams(l, t, w, h, preL, preT, preW, preH, <direction>dir), () => {
+      this.onAnimationEnd.emit(activeEle);
+    });
     this.preActiveDropShape = this.activeDropShape;
   }
 
-  private _prependChild(parent, newChild: HTMLElement) {
-    if (parent.firstChild) {
-      if (parent.firstChild.nodeName === '#text') {
+  private _prependShape(parent, newChild: HTMLElement) {
+    _.each(parent.childNodes, (node) => {
+      if (node.nodeName === '#text' && node.textContent.trim() !== '') {
         let tempWraper = document.createElement('span');
-        tempWraper.appendChild(parent.firstChild);
+        tempWraper.appendChild(node);
         parent.appendChild(tempWraper);
       }
-      parent.firstChild.style.position = 'relative';
+
+      if (node.nodeName !== '#comment' && node.nodeName !== '#text' && this._getStyle(node, 'position') === 'static') {
+        node.style.position = 'relative';
+      }
+    });
+
+    if (parent.firstChild) {
       parent.insertBefore(newChild, parent.firstChild);
     } else {
       parent.appendChild(newChild);
@@ -140,8 +149,7 @@ export class DropShapeGroupDirective {
   }
 
   private _getStyle(element, attr: string) {
-    if (typeof
-      window.getComputedStyle != 'undefined') {
+    if (typeof window.getComputedStyle != 'undefined') {
       return window.getComputedStyle(element, null)[attr];
     } else if (element.currentStyle) {
       return element.currentStyle[attr];
