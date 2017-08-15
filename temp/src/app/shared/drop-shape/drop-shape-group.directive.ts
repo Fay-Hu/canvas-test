@@ -2,10 +2,10 @@ import {
   ContentChildren, Directive, ElementRef, Input, Output, QueryList, EventEmitter
 } from '@angular/core';
 import * as _ from 'underscore';
-import {DropShapeDirective} from './drop-shape.directive';
-import {DropShapeService} from './drop-shape.service';
-import {RoundShape} from './round-shape/round-shape';
-import {direction, getRectPoints, roundShapeFrams} from './round-shape/round-shape-frames';
+import { DropShapeDirective } from './drop-shape.directive';
+import { DropShapeService } from './drop-shape.service';
+import { RoundShape } from './round-shape/round-shape';
+import { direction, roundShapeFrams } from './round-shape/round-shape-frames';
 
 
 @Directive({
@@ -86,7 +86,15 @@ export class DropShapeGroupDirective {
 
     this._prependShape(activeEle, this.stage);
     // rect
-    this.shape = new RoundShape(this.stage, getRectPoints(l, t, w, h), this._options.fillColor);
+    this.shape = new RoundShape(this.stage, {
+      x: l + w / 2,
+      y: t + h / 2,
+      r: h / 2,
+    }, {
+        x: l + w / 2,
+        y: t + h / 2,
+        r: h / 3,
+      }, this._options.fillColor);
 
     this.shape.draw();
     this.preActiveDropShape = this.activeDropShape;
@@ -166,7 +174,7 @@ export class DropShapeGroupDirective {
       t = activeEle.offsetTop - containerEle.offsetTop;
 
     if (force) {
-      this.shape.controlPoints = getRectPoints(l, t, w, h);
+      // this.shape.controlPoints = getRectPoints(l, t, w, h);
       this.stage.height = this.container.clientHeight;
       this.stage.width = this.container.clientWidth;
       this.shape.draw();
