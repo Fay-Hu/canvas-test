@@ -2,10 +2,10 @@ import {
   ContentChildren, Directive, ElementRef, Input, Output, QueryList, EventEmitter
 } from '@angular/core';
 import * as _ from 'underscore';
-import { DropShapeDirective } from './drop-shape.directive';
-import { DropShapeService } from './drop-shape.service';
-import { RoundShape } from './round-shape/round-shape';
-import { direction, roundShapeFrams } from './round-shape/round-shape-frames';
+import {DropShapeDirective} from './drop-shape.directive';
+import {DropShapeService} from './drop-shape.service';
+import {RoundShape} from './round-shape/round-shape';
+import {direction, roundShapeFrams} from './round-shape/round-shape-frames';
 
 
 @Directive({
@@ -88,13 +88,15 @@ export class DropShapeGroupDirective {
     // rect
     this.shape = new RoundShape(this.stage, {
       x: l + w / 2,
-      y: t + h / 2,
+      y: t,
       r: h / 2,
     }, {
-        x: l + w / 2,
-        y: t + h / 2,
-        r: h / 3,
-      }, this._options.fillColor);
+      x: l,
+      y: t,
+      w: w,
+      h: h,
+      r: 0
+    }, null, this._options.fillColor);
 
     this.shape.draw();
     this.preActiveDropShape = this.activeDropShape;
