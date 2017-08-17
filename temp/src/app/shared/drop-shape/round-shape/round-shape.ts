@@ -12,7 +12,7 @@ export type ControlPoints  = {
 export interface ControlFrame {
   duration?: number;
   easing?: any;
-  state: any;
+  state: ControlPoints;
 }
 
 export class RoundShape {
@@ -23,7 +23,7 @@ export class RoundShape {
   tweenGroup: any = new TWEEN.Group();
 
   controlPoints: ControlPoints;
-  threshold: number = 64;
+  threshold: number = 1.5;
 
   constructor(canvas: HTMLCanvasElement,
               circle: BasicMetaball,
@@ -51,31 +51,35 @@ export class RoundShape {
   draw() {
     let
       ctx = this.ctx,
-      {rect1, rect2} = this.controlPoints;
+      {circle, rect1} = this.controlPoints;
 
-    ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
+    ctx.clearRect(0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight);
     ctx.save();
     ctx.fillStyle = this.fill;
 
     this.metabalize();
+    // ctx.rect(rect1.x, rect1.y, rect1.w, rect1.h)
+    // ctx.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI)
+    // ctx.strokeStyle = 'red';
+    // ctx.stroke();
     ctx.restore();
   }
 
   metabalize() {
     let
-      tempCtx = this.tempCanvas.getContext('2d'),
+      tempCanvas = this.tempCanvas,
+      tempCtx = tempCanvas.getContext('2d'),
       width = this.canvas.clientWidth,
       height = this.canvas.clientHeight,
       {circle, rect1, rect2} = this.controlPoints;
 
     tempCtx.clearRect(0, 0, width, height);
-
-    this.drawRect(rect1, tempCtx);
-    this.drawRect(rect2, tempCtx);
-
+    tempCanvas.width = width;
+    tempCanvas.height = height;
     let
       imgData = tempCtx.getImageData(0, 0, width, height),
-      data = _.toArray(_.groupBy(imgData.data, (v, i) => {
+      pix = imgData.data,
+      data = _.toArray(_.groupBy(pix, (v, i) => {
         return Math.floor(i / 4)
       }));
 
@@ -90,15 +94,22 @@ export class RoundShape {
         f = f1 + f2 + f3;
 
       if (f > this.threshold) {
-        v = [255, 255, 255, 255];
+        //rgba
+        pix[i * 4] = 255;
+        pix[i * 4 + 1] = 255;
+        pix[i * 4 + 2] = 255;
+        pix[i * 4 + 3] = 255;
       } else {
-        v = [255, 255, 255, 0];
+        pix[i * 4] = 0;
+        pix[i * 4 + 1] = 0;
+        pix[i * 4 + 2] = 0;
+        pix[i * 4 + 3] = 0;
       }
     });
 
     tempCtx.clearRect(0, 0, width, height);
-    tempCtx.putImageData(_.extend(imgData,{data:_.flatten(data)}), 0, 0);
-    this.ctx.drawImage(this.tempCanvas, 0, 0, width, height);
+    tempCtx.putImageData(imgData, 0, 0);
+    this.ctx.drawImage(tempCanvas, 0, 0, width, height);
   }
 
   drawRect(rect: RectMetaball, ctx: any = this.ctx) {
@@ -128,11 +139,18 @@ export class RoundShape {
     _.each(frames, (v, i) => {
       tweenGroup.add(
         new TWEEN.Tween(coords)
-          .to(v.state, v.duration)
+          .to(this._getCoordsFromPoints(v.state), v.duration)
           // easing
           .easing(v.easing || TWEEN.Easing.Quadratic.In)
           .onUpdate(() => {
-            _.extend(this.controlPoints, this._getPointsFromCoords(coords));
+            let
+              controlPoints = this.controlPoints,
+              coordsTemp = this._getPointsFromCoords(coords);
+
+            _.extend(controlPoints.circle, coordsTemp.circle);
+            _.extend(controlPoints.rect1, coordsTemp.rect1);
+            _.extend(controlPoints.rect2, coordsTemp.rect2);
+            console.log(this.controlPoints.rect2)
             this.draw();
           })
           .onComplete(() => {
