@@ -2,7 +2,7 @@ import {ContentChildren, Directive, ElementRef, Input, Output, QueryList, EventE
 import * as _ from "underscore";
 import {DropShapeDirective} from "./drop-shape.directive";
 import {DropShapeService} from "./drop-shape.service";
-import {RoundShape,BasicMetaball,RectMetaball} from "./round-shape/round-shape";
+import {RoundShape, BasicMetaball, RectMetaball} from "./round-shape/round-shape";
 import {direction, roundShapeFrams} from "./round-shape/round-shape-frames";
 
 
@@ -86,9 +86,9 @@ export class DropShapeGroupDirective {
     // rect
     this.shape = new RoundShape(
       this.stage,
-      new BasicMetaball(l + w / 2, t, h / 2),
+      new BasicMetaball(l + w / 2, t + h / 2, 0),
       new RectMetaball(l, t, w, h),
-      new BasicMetaball(0, 0, 0, 0),
+      new RectMetaball(0, 0, 0, 0),
       this._options.fillColor
     );
 
