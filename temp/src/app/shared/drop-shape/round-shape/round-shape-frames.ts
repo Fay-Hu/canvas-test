@@ -42,13 +42,13 @@ export const roundShapeFrams = (x: number, y: number, w: number, h: number, preX
 					}
 				},
 				step_1 = {
-					duration: 5000,
+					duration: 1000,
 					easing: TWEEN.Easing.Quadratic.In,
 					state: {
 						circle: {
 							x: x + w / 2,
 							y: y - preY + h,
-							r: h / 8
+							r: 0
 						},
 						rect1: {
 							x: preX + preW / 2,
@@ -57,32 +57,14 @@ export const roundShapeFrams = (x: number, y: number, w: number, h: number, preX
 							h: 0
 						},
 						rect2: {
-							x: x + w / 4,
-							y: y + h / 4,
-							w: w / 2,
-							h: h / 2
-						}
-					}
-				},
-				step_2 = {
-					duration: 400,
-					easing: TWEEN.Easing.Quadratic.In,
-					state: {
-						circle: {
-							x: x + w / 2,
-							y: y - preY + h,
-							r: 0
-						},
-						rect1: step_1.state.rect1,
-						rect2: {
-							x: x,
-							y: y,
-							w: w,
+							x: x ,
+							y: y ,
+							w: w ,
 							h: h
 						}
 					}
 				};
-			return [step_0, step_1,step_2];
+			return [step_0, step_1];
 		}
 	};
 
