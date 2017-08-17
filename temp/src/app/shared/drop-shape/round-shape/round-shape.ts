@@ -17,6 +17,7 @@ export interface ControlFrame {
 
 export class RoundShape {
   canvas: HTMLCanvasElement;
+  tempCanvas: HTMLCanvasElement;
   ctx: any;
   fill: string;
   tweenGroup: any = new TWEEN.Group();
@@ -31,6 +32,7 @@ export class RoundShape {
               fill: string = DEFAULT_FILL) {
 
     this.canvas = canvas;
+    this.tempCanvas = document.createElement('canvas');
     this.ctx = canvas.getContext('2d');
     this.fill = fill;
 
@@ -61,17 +63,18 @@ export class RoundShape {
 
   metabalize() {
     let
-      tempCanvas = document.createElement('canvas'),
-      ctx = tempCanvas.ctx,
+      tempCtx = this.tempCanvas.getContext('2d'),
       width = this.canvas.clientWidth,
       height = this.canvas.clientHeight,
       {circle, rect1, rect2} = this.controlPoints;
 
-    this.drawRect(rect1,ctx);
-    this.drawRect(rect2,ctx);
+    tempCtx.clearRect(0, 0, width, height);
+
+    this.drawRect(rect1, tempCtx);
+    this.drawRect(rect2, tempCtx);
 
     let
-      imgData = ctx.getImageData(0, 0, width, height),
+      imgData = tempCtx.getImageData(0, 0, width, height),
       data = _.toArray(_.groupBy(imgData.data, (v, i) => {
         return Math.floor(i / 4)
       }));
@@ -89,18 +92,17 @@ export class RoundShape {
       if (f > this.threshold) {
         v = [255, 255, 255, 255];
       } else {
-        v = [0, 0, 0, 0];
+        v = [255, 255, 255, 0];
       }
     });
 
-    ctx.clearRect(0, 0, width, height);
-    _.flatten(data);
-    this.ctx.drawImage(tempCanvas,width,height);
+    tempCtx.clearRect(0, 0, width, height);
+    tempCtx.putImageData(_.extend(imgData,{data:_.flatten(data)}), 0, 0);
+    this.ctx.drawImage(this.tempCanvas, 0, 0, width, height);
   }
 
-  drawRect(rect: RectMetaball,ctx:any = this.ctx) {
+  drawRect(rect: RectMetaball, ctx: any = this.ctx) {
     let
-      ctx = this.ctx,
       {x, y, w, h} = rect;
 
     ctx.beginPath();
