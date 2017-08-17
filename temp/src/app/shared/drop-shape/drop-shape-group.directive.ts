@@ -1,11 +1,9 @@
-import {
-  ContentChildren, Directive, ElementRef, Input, Output, QueryList, EventEmitter
-} from '@angular/core';
-import * as _ from 'underscore';
-import {DropShapeDirective} from './drop-shape.directive';
-import {DropShapeService} from './drop-shape.service';
-import {RoundShape} from './round-shape/round-shape';
-import {direction, roundShapeFrams} from './round-shape/round-shape-frames';
+import {ContentChildren, Directive, ElementRef, Input, Output, QueryList, EventEmitter} from "@angular/core";
+import * as _ from "underscore";
+import {DropShapeDirective} from "./drop-shape.directive";
+import {DropShapeService} from "./drop-shape.service";
+import {RoundShape,BasicMetaball,RectMetaball} from "./round-shape/round-shape";
+import {direction, roundShapeFrams} from "./round-shape/round-shape-frames";
 
 
 @Directive({
@@ -86,17 +84,13 @@ export class DropShapeGroupDirective {
 
     this._prependShape(activeEle, this.stage);
     // rect
-    this.shape = new RoundShape(this.stage, {
-      x: l + w / 2,
-      y: t,
-      r: h / 2,
-    }, {
-      x: l,
-      y: t,
-      w: w,
-      h: h,
-      r: 0
-    }, null, this._options.fillColor);
+    this.shape = new RoundShape(
+      this.stage,
+      new BasicMetaball(l + w / 2, t, h / 2),
+      new RectMetaball(l, t, w, h),
+      new BasicMetaball(0, 0, 0, 0),
+      this._options.fillColor
+    );
 
     this.shape.draw();
     this.preActiveDropShape = this.activeDropShape;
